@@ -1,0 +1,12 @@
+### Get chat history
+GET http://localhost:3000/chat
+
+### Send new prompt
+POST http://localhost:3000/chat
+Content-Type: application/json
+
+{
+    "messge": "Explain how nestjs works",
+    "timestamp": "2024-12-20T18:48:57.815Z",
+    "isAI": false
+}
