@@ -8,6 +8,7 @@ import { AuthService } from './services/auth/auth.service';
 import { OpenAiService } from './services/open_ai/open_ai.service';
 import { ConfigModule } from '@nestjs/config';
 import { InterfaceChatService } from './services/interfaces/interface_chat.service';
+import { FirestoreService } from './services/firestore/firestore.service';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -26,6 +27,10 @@ import { InterfaceChatService } from './services/interfaces/interface_chat.servi
   {
     provide: "GenerativeAIService",
     useClass: OpenAiService
+  },
+  {
+    provide: "CloudDB",
+    useClass: FirestoreService
   }],
 })
 export class AppModule {}
