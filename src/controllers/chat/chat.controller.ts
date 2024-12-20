@@ -1,11 +1,11 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { Message } from 'src/models/message.model';
-import { ChatService } from 'src/services/chat/chat.service';
+import { InterfaceChatService } from 'src/services/interfaces/interface_chat.service';
 
 // TODO: implement guard for this controller
 @Controller('chat')
 export class ChatController {
-    constructor(private chatService: ChatService) {}
+    constructor(@Inject("ChatService") private chatService: InterfaceChatService) {}
 
     @Get()
     getChat(): Array<Message> {
@@ -13,7 +13,7 @@ export class ChatController {
     }
 
     @Post()
-    sendPrompt(message: Message) {
+    sendPrompt(@Body() message: Message) {
         return this.chatService.sendPrompt(message);
     }
     
