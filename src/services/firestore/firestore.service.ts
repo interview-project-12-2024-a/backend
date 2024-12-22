@@ -1,5 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
+import { NotFoundError } from 'rxjs';
 import { Message } from 'src/models/message.model';
 import { User } from 'src/models/user.model';
 
@@ -45,7 +46,7 @@ export class FirestoreService implements OnModuleInit{
         let documentList = await this.getDocumentList('user', mail);
         if(documentList.length === 0) {
             this.logger.log(`User with mail: ${mail} not found`);
-            throw 'User not found';
+            throw new NotFoundException('User not found');
         } else {
             this.logger.log(`User with mail: ${mail} found`);
             let user : User;
@@ -64,7 +65,7 @@ export class FirestoreService implements OnModuleInit{
         let documentList = await this.getDocumentList(collection, mail);
         if(documentList.length === 0) {
             this.logger.log(`User with mail: ${mail} not found`);
-            throw 'User not found';
+            throw new NotFoundException('User not found');
         }
         let documentId = documentList[0].id;
 

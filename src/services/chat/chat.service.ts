@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InterfaceChatService } from '../interfaces/interface_chat.service';
 import { Message } from 'src/models/message.model';
 import { InterfaceGenerativeIAService } from '../interfaces/interface_generative_ia.service';
@@ -43,7 +43,7 @@ export class ChatService implements InterfaceChatService{
         this.logger.log('Checking if openAI sent valid response');
         if(openAIResponse.choices.length == 0) {
             this.logger.log('OpenAI did not sent valid response, returning error');
-            throw "Invalid openAI response";
+            throw new InternalServerErrorException("Invalid openAI response");
         }
 
         this.logger.log('OpenAI sent valid response');
