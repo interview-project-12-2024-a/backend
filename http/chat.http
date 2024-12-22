@@ -2,11 +2,12 @@
 GET http://localhost:3000/chat
 
 ### Send new prompt
+### To avoid errors while testing, dont forget to change timestamp
 POST http://localhost:3000/chat
 Content-Type: application/json
 
 {
     "message": "Say this is a test",
-    "timestamp": "2024-12-20T18:48:57.815Z",
+    "timestamp": "2024-13-20T18:48:57.815Z",
     "isAI": false
 }
