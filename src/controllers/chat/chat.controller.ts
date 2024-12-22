@@ -9,12 +9,14 @@ export class ChatController {
 
     @Get()
     getChat(): Promise<Array<Message>> {
-        return this.chatService.getChat();
+        // TODO: get mail from firebase token
+        return this.chatService.getChat('moises.quispe.arellano@gmail.com');
     }
 
     @Post()
     sendPrompt(@Body() message: Message) {
-        return this.chatService.sendPrompt(message);
+        // TODO: get mail from firebase token
+        return this.chatService.sendPrompt('moises.quispe.arellano@gmail.com', message);
     }
     
 }

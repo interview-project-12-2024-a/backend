@@ -1,8 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import * as fs from 'fs';
 import { Message } from 'src/models/message.model';
-import { User } from 'src/models/dao/user.model';
+import { User } from 'src/models/user.model';
 
 
 // TODO: create db interface
@@ -53,7 +52,6 @@ export class FirestoreService implements OnModuleInit{
             documentList.forEach(doc => {
                 user = {
                     mail: doc.data().mail,
-                    password: doc.data().password,
                     chat: doc.data().chat
                 };
             });
