@@ -15,7 +15,7 @@ export class ChatService implements InterfaceChatService{
     async getChat(): Promise<Array<Message> > {
         this.logger.log('Getting chat from firebase');
         let dbResponse = await this.database.readUser('moises.quispe.arellano@gmail.com');
-        if(dbResponse === null) {
+        if(!dbResponse || dbResponse.chat === null) {
             this.logger.log(`User not found`);
             throw 'User not found';
         }
@@ -27,10 +27,11 @@ export class ChatService implements InterfaceChatService{
 
     async sendPrompt(message: Message): Promise<Message> {
         this.logger.log('Saving message in firestore');
-        await this.database.update('user', 'moises.quispe.arellano@gmail.com', message);
+        await this.database.updateChat('user', 'moises.quispe.arellano@gmail.com', message);
 
         this.logger.log('Sending message to openAI');
         let openAIResponse : OpenAICompleteResponse = await this.generativeAIService.complete(message);
+       
         this.logger.log('Checking if openAI sent valid response');
         if(openAIResponse.choices.length == 0) {
             this.logger.log('OpenAI did not sent valid response, returning error');
@@ -45,7 +46,7 @@ export class ChatService implements InterfaceChatService{
         };
 
         this.logger.log('Saving openAI response to firestore');
-        await this.database.update('user', 'moises.quispe.arellano@gmail.com', res);
+        await this.database.updateChat('user', 'moises.quispe.arellano@gmail.com', res);
         
         this.logger.log(`Returning openAI response: ${res.message}`);
         return res;
