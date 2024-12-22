@@ -15,11 +15,7 @@ export class FirestoreService implements OnModuleInit{
 
     async onModuleInit() {
         try {
-            this.logger.log('Getting Firebase config file');
-            const accountPath = process.env.FIREBASE_KEY;
-            const serviceAccount = JSON.parse(fs.readFileSync(accountPath, 'utf8'));
-            
-            this.logger.log(`Attempting connection to Firestore, with project: ${serviceAccount.project_id}`);
+            this.logger.log(`Attempting connection to Firestore for database operations`);
             this.database = admin.firestore();
 
             this.logger.log('Firebase Firestore connection established');
