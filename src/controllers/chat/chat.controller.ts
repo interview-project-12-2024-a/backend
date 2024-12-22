@@ -8,7 +8,7 @@ export class ChatController {
     constructor(@Inject("ChatService") private chatService: InterfaceChatService) {}
 
     @Get()
-    getChat(): Array<Message> {
+    getChat(): Promise<Array<Message>> {
         return this.chatService.getChat();
     }
 
