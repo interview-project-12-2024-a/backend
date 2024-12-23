@@ -10,8 +10,6 @@ RUN touch service-account.json
 
 COPY . .
 
-COPY .env ./
-
 RUN npm run build
 
 EXPOSE 3000
