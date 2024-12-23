@@ -6,6 +6,8 @@ COPY package*.json ./
 
 RUN npm install
 
+RUN touch service-account.json
+
 COPY . .
 
 COPY .env ./
