@@ -6,8 +6,6 @@ COPY package*.json ./
 
 RUN npm install
 
-RUN touch service-account.json
-
 COPY . .
 
 RUN npm run build
