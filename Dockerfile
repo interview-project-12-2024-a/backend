@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:18-slim
 
 WORKDIR /usr/src/app
 
@@ -8,10 +8,8 @@ RUN npm install
 
 COPY . .
 
-RUN chmod +x /usr/src/app/docker-entrypoint.sh
-
 RUN npm run build
 
 EXPOSE 3000
 
-ENTRYPOINT ["/usr/src/app/docker-entrypoint.sh"]
+CMD ["npm", "run", "start:prod"]
