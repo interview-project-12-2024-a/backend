@@ -11,17 +11,13 @@ export class ChatController {
     @Get()
     @UseGuards(FirebaseAuthGuard)
     getChat(@Request() req): Promise<Array<Message>> {
-        // TODO: get mail from firebase token
-        console.log(req);
-        return this.chatService.getChat('moises.quispe.arellano@gmail.com');
+        return this.chatService.getChat(req.user.email);
     }
 
     @Post()
     @UseGuards(FirebaseAuthGuard)
     sendPrompt(@Request() req, @Body() message: Message) {
-        // TODO: get mail from firebase token
-        console.log(req);
-        return this.chatService.sendPrompt('moises.quispe.arellano@gmail.com', message);
+        return this.chatService.sendPrompt(req.user.email, message);
     }
     
 }

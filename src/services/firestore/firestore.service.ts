@@ -46,7 +46,6 @@ export class FirestoreService implements OnModuleInit{
         let documentList = await this.getDocumentList('user', mail);
         if(documentList.length === 0) {
             this.logger.log(`User with mail: ${mail} not found`);
-            throw new NotFoundException('User not found');
         } else {
             this.logger.log(`User with mail: ${mail} found`);
             let user : User;
