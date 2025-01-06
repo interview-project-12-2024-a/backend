@@ -10,15 +10,20 @@ export class ChatController {
     @Get()
     @UseGuards(FirebaseAuthGuard)
     getChat(@Request() req, 
-            @Query('lastTimestamp') lastTimestamp?: string): Promise<Array<Message>> {
-        // get lasttimestamp param
-        return this.chatService.getChat('moises.quispe.arellano@gmail.com');
+            @Query('timestamp') lastTimestamp?: string): Promise<Array<Message>> {
+        // TODO: move this to service
+        let date : Date;
+        if(!lastTimestamp) {
+            lastTimestamp = new Date(Date.now()).toString();
+        }
+        
+        return this.chatService.getChat(req.user.email, lastTimestamp);
     }
 
     @Post()
     @UseGuards(FirebaseAuthGuard)
     sendPrompt(@Request() req, @Body() message: Message) {
-        return this.chatService.sendPrompt('moises.quispe.arellano@gmail.com', message);
+        return this.chatService.sendPrompt(req.user.email, message);
     }
     
 }

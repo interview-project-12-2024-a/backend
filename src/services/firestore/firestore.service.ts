@@ -1,3 +1,4 @@
+import { FieldValue } from '@google-cloud/firestore';
 import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { NotFoundError } from 'rxjs';
@@ -42,11 +43,12 @@ export class FirestoreService implements OnModuleInit{
         return documentList;    
     }
 
-    async getChatList(docId: string) : Promise<any> {
+    async getChatList(docId : string, timestamp : FieldValue) : Promise<any> {
         this.logger.log('Getting message list');
         let snapshot = await this.database.collection('user')
                         .doc(docId)
                         .collection('messages')
+                        .where('timestamp', '<', timestamp)
                         .orderBy('timestamp', 'desc')
                         .limit(10)
                         .get();
@@ -57,13 +59,13 @@ export class FirestoreService implements OnModuleInit{
             chatList.push({
                 message: doc.data().message,
                 isAI: doc.data().isAI,
-                timestamp: doc.data().timestamp
+                timestamp: doc.data().timestamp.toDate().toISOString()
             });
         });
         return chatList;
     }
 
-    async readUser(mail: string) : Promise<any>{
+    async readUser(mail: string, timestamp : FieldValue) : Promise<any>{
         let documentList = await this.getDocumentList('user', mail);
         if(documentList.length === 0) {
             this.logger.log(`User with mail: ${mail} not found`);
@@ -79,7 +81,7 @@ export class FirestoreService implements OnModuleInit{
             });
             
             this.logger.log('Getting chat');
-            user.chat = await this.getChatList(user.docId);
+            user.chat = await this.getChatList(user.docId, timestamp);
 
             return user;
         }

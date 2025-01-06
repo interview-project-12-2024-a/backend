@@ -4,7 +4,6 @@ import { Message } from 'src/models/message.model';
 import { InterfaceGenerativeIAService } from '../interfaces/interface_generative_ia.service';
 import { OpenAICompleteResponse } from 'src/models/response/open_ai_complete_response.model';
 import { FirestoreService } from '../firestore/firestore.service';
-import { User } from 'src/models/user.model';
 import * as admin from 'firebase-admin';
 
 @Injectable()
@@ -14,9 +13,11 @@ export class ChatService implements InterfaceChatService{
     constructor(@Inject("GenerativeAIService") private generativeAIService: InterfaceGenerativeIAService,
                 @Inject("CloudDB") private database: FirestoreService) {}
 
-    async getChat(mail: string): Promise<Array<Message> > {
+    async getChat(mail: string, timestamp : string): Promise<Array<Message> > {
+        this.logger.log('Getting date');
+        let timestampFirebase = admin.firestore.Timestamp.fromDate(new Date(timestamp));
         this.logger.log('Getting chat from firebase');
-        let dbResponse = await this.database.readUser(mail);
+        let dbResponse = await this.database.readUser(mail, timestampFirebase);
         
         let res : Array<Message> = [];
         if(!dbResponse || dbResponse.chat === null) {
@@ -27,7 +28,7 @@ export class ChatService implements InterfaceChatService{
             this.database.createUser('user', newUser);
         }
         else {
-            res = dbResponse.chat;
+            res = dbResponse.chat.reverse();
             this.logger.log(`Found ${res.length} messages for GET /chat`);
         }
         return res;

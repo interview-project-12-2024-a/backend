@@ -1,6 +1,9 @@
 ### Get chat history
 GET http://localhost:3000/chat
 
+### Get previous 10 messages
+GET http://localhost:3000/chat?timestamp=2025-01-06T16:45:09.086Z
+
 ### Send new prompt
 ### To avoid errors while testing, dont forget to change timestamp
 POST http://localhost:3000/chat
