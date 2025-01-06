@@ -50,7 +50,7 @@ export class FirestoreService implements OnModuleInit{
                         .collection('messages')
                         .where('timestamp', '<', timestamp)
                         .orderBy('timestamp', 'desc')
-                        .limit(10)
+                        .limit(20)
                         .get();
 
         this.logger.log(`Found ${snapshot.docs.length} messages for ${docId}`);
