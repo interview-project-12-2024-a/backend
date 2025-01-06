@@ -24,7 +24,7 @@ export class FirestoreService implements OnModuleInit{
         }
     }
     
-    async createUser(collection: string, user: User) : Promise<void> {
+    async createUser(collection: string, user: any) : Promise<void> {
         this.logger.log(`Creating document for user with mail: ${user.mail}`);
         const userRef = this.database.collection(collection);
         userRef.add(user);
@@ -42,19 +42,45 @@ export class FirestoreService implements OnModuleInit{
         return documentList;    
     }
 
+    async getChatList(docId: string) : Promise<any> {
+        this.logger.log('Getting message list');
+        let snapshot = await this.database.collection('user')
+                        .doc(docId)
+                        .collection('messages')
+                        .orderBy('timestamp', 'desc')
+                        .limit(10)
+                        .get();
+
+        this.logger.log(`Found ${snapshot.docs.length} messages for ${docId}`);
+        let chatList : Array<any> = [];
+        snapshot.docs.forEach(doc => {
+            chatList.push({
+                message: doc.data().message,
+                isAI: doc.data().isAI,
+                timestamp: doc.data().timestamp
+            });
+        });
+        return chatList;
+    }
+
     async readUser(mail: string) : Promise<any>{
         let documentList = await this.getDocumentList('user', mail);
         if(documentList.length === 0) {
             this.logger.log(`User with mail: ${mail} not found`);
         } else {
             this.logger.log(`User with mail: ${mail} found`);
-            let user : User;
-            documentList.forEach(doc => {
+            let user : any = null;
+            documentList.forEach((doc) => {
                 user = {
                     mail: doc.data().mail,
-                    chat: doc.data().chat
+                    docId: doc.id,
+                    chat: [],
                 };
             });
+            
+            this.logger.log('Getting chat');
+            user.chat = await this.getChatList(user.docId);
+
             return user;
         }
     }
@@ -69,10 +95,7 @@ export class FirestoreService implements OnModuleInit{
         let documentId = documentList[0].id;
 
         this.logger.log(`Document id found ${documentId}, inserting new message`);
-        let userRef = await this.database.collection(collection).doc(documentId);
-        userRef.update({
-            chat: admin.firestore.FieldValue.arrayUnion(message),
-        });
+        await this.database.collection(collection).doc(documentId).collection('messages').add(message);
     }
 
 }

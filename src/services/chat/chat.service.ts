@@ -5,6 +5,7 @@ import { InterfaceGenerativeIAService } from '../interfaces/interface_generative
 import { OpenAICompleteResponse } from 'src/models/response/open_ai_complete_response.model';
 import { FirestoreService } from '../firestore/firestore.service';
 import { User } from 'src/models/user.model';
+import * as admin from 'firebase-admin';
 
 @Injectable()
 export class ChatService implements InterfaceChatService{
@@ -20,9 +21,8 @@ export class ChatService implements InterfaceChatService{
         let res : Array<Message> = [];
         if(!dbResponse || dbResponse.chat === null) {
             this.logger.log(`User not found creating user with mail: ${mail}`);
-            let newUser : User = {
+            let newUser = {
                 mail: mail,
-                chat: [],
             };
             this.database.createUser('user', newUser);
         }
@@ -34,9 +34,7 @@ export class ChatService implements InterfaceChatService{
     }
 
     async sendPrompt(mail: string, message: Message): Promise<Message> {
-        this.logger.log('Saving message in firestore');
-        await this.database.updateChat('user', mail, message);
-
+        message.timestamp = admin.firestore.FieldValue.serverTimestamp();
         this.logger.log('Sending message to openAI');
         let openAIResponse : OpenAICompleteResponse = await this.generativeAIService.complete(message);
        
@@ -47,10 +45,13 @@ export class ChatService implements InterfaceChatService{
         }
 
         this.logger.log('OpenAI sent valid response');
+        this.logger.log('Saving message in firestore');
+        await this.database.updateChat('user', mail, message);
+
         let res  : Message = {
             message: openAIResponse.choices[0].message.content,
             isAI: true,
-            timestamp: new Date()
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
         };
 
         this.logger.log('Saving openAI response to firestore');

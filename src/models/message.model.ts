@@ -1,5 +1,7 @@
+import { FieldValue } from "@google-cloud/firestore";
+
 export class Message {
     message: string;
-    timestamp: Date;
+    timestamp?: FieldValue;
     isAI: boolean;
 }
