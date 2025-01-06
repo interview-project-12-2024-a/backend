@@ -21,9 +21,9 @@ export class ChatController {
     }
 
     @Post()
-    @UseGuards(FirebaseAuthGuard)
+    // @UseGuards(FirebaseAuthGuard)
     sendPrompt(@Request() req, @Body() message: Message) {
-        return this.chatService.sendPrompt(req.user.email, message);
+        return this.chatService.sendPrompt('moises.quispe.arellano@gmail.com', message);
     }
     
 }

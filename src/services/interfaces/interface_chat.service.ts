@@ -4,5 +4,5 @@ import { OpenAICompleteResponse } from "src/models/response/open_ai_complete_res
 
 export interface InterfaceChatService {
     getChat(mail: string, timestamp: string): Promise<Array<Message> >;
-    sendPrompt(mail: string, message: Message): Promise<Message>;
+    sendPrompt(mail: string, message: Message): Promise<any>;
 }

@@ -5,6 +5,7 @@ import { InterfaceGenerativeIAService } from '../interfaces/interface_generative
 import { OpenAICompleteResponse } from 'src/models/response/open_ai_complete_response.model';
 import { FirestoreService } from '../firestore/firestore.service';
 import * as admin from 'firebase-admin';
+import { timestamp } from 'rxjs';
 
 @Injectable()
 export class ChatService implements InterfaceChatService{
@@ -34,7 +35,7 @@ export class ChatService implements InterfaceChatService{
         return res;
     }
 
-    async sendPrompt(mail: string, message: Message): Promise<Message> {
+    async sendPrompt(mail: string, message: Message): Promise<any> {
         message.timestamp = admin.firestore.FieldValue.serverTimestamp();
         this.logger.log('Sending message to openAI');
         let openAIResponse : OpenAICompleteResponse = await this.generativeAIService.complete(message);
@@ -58,7 +59,14 @@ export class ChatService implements InterfaceChatService{
         this.logger.log('Saving openAI response to firestore');
         await this.database.updateChat('user', mail, res);
         
+        // TODO: create response class
+        let response = {
+            message: res.message,
+            isAI: true,
+            timestamp : new Date(Date.now()).toISOString(),
+        }
+
         this.logger.log(`Returning openAI response: ${res.message}`);
-        return res;
+        return response;
     }
 }
