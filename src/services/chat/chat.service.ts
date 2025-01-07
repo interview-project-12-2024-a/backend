@@ -6,6 +6,8 @@ import { OpenAICompleteResponse } from 'src/models/response/open_ai_complete_res
 import { FirestoreService } from '../firestore/firestore.service';
 import * as admin from 'firebase-admin';
 import { timestamp } from 'rxjs';
+import { FieldValue } from '@google-cloud/firestore';
+import { GetChatResponse } from 'src/models/response/get_chat_response.model';
 
 @Injectable()
 export class ChatService implements InterfaceChatService{
@@ -14,23 +16,26 @@ export class ChatService implements InterfaceChatService{
     constructor(@Inject("GenerativeAIService") private generativeAIService: InterfaceGenerativeIAService,
                 @Inject("CloudDB") private database: FirestoreService) {}
 
-    async getChat(mail: string, timestamp : string): Promise<Array<Message> > {
-        this.logger.log('Getting date');
-        let timestampFirebase = admin.firestore.Timestamp.fromDate(new Date(timestamp));
+    async getChat(mail: string, timestamp?: string): Promise<GetChatResponse> {
+        let timestampFirebase = this.getFirebaseTimestamp(timestamp);
         this.logger.log('Getting chat from firebase');
+        // TODO: change readUser function name 
         let dbResponse = await this.database.readUser(mail, timestampFirebase);
         
-        let res : Array<Message> = [];
+        let res : GetChatResponse = {chat: []};
+        // TODO: use lambda to create user document
         if(!dbResponse || dbResponse.chat === null) {
             this.logger.log(`User not found creating user with mail: ${mail}`);
+            // TODO: use mail on create user
             let newUser = {
                 mail: mail,
             };
             this.database.createUser('user', newUser);
         }
         else {
-            res = dbResponse.chat.reverse();
-            this.logger.log(`Found ${res.length} messages for GET /chat`);
+            // TODO: set nextPageTimestamp
+            res.chat = dbResponse.chat.reverse();
+            this.logger.log(`Found ${res.chat.length} messages for GET /chat`);
         }
         return res;
     }
@@ -68,5 +73,12 @@ export class ChatService implements InterfaceChatService{
 
         this.logger.log(`Returning openAI response: ${res.message}`);
         return response;
+    }
+
+    getFirebaseTimestamp(timestamp?: string) : any {
+        this.logger.log('Getting firebase timestamp');
+        if(!timestamp) 
+            return admin.firestore.Timestamp.fromDate(new Date(Date.now()));
+        return admin.firestore.Timestamp.fromDate(new Date(timestamp));        
     }
 }
