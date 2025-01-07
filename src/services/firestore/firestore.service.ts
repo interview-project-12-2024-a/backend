@@ -25,10 +25,10 @@ export class FirestoreService implements OnModuleInit{
         }
     }
     
-    async createUser(collection: string, user: any) : Promise<void> {
-        this.logger.log(`Creating document for user with mail: ${user.mail}`);
+    async createUser(collection: string, mail: string) : Promise<void> {
+        this.logger.log(`Creating document for user with mail: ${mail}`);
         const userRef = this.database.collection(collection);
-        userRef.add(user);
+        userRef.add({mail: mail});
         this.logger.log(`Document created succesfully`);
     }
 

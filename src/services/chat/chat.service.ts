@@ -26,11 +26,7 @@ export class ChatService implements InterfaceChatService{
         // TODO: use lambda to create user document
         if(!dbResponse || dbResponse.chat === null) {
             this.logger.log(`User not found creating user with mail: ${mail}`);
-            // TODO: use mail on create user
-            let newUser = {
-                mail: mail,
-            };
-            this.database.createUser('user', newUser);
+            this.database.createUser('user', mail);
         }
         else {
             // TODO: set nextPageTimestamp
