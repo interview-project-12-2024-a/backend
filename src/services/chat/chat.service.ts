@@ -5,8 +5,6 @@ import { InterfaceGenerativeIAService } from '../interfaces/interface_generative
 import { OpenAICompleteResponse } from 'src/models/response/open_ai_complete_response.model';
 import { FirestoreService } from '../firestore/firestore.service';
 import * as admin from 'firebase-admin';
-import { timestamp } from 'rxjs';
-import { FieldValue } from '@google-cloud/firestore';
 import { GetChatResponse } from 'src/models/response/get_chat_response.model';
 
 @Injectable()
@@ -17,20 +15,19 @@ export class ChatService implements InterfaceChatService{
                 @Inject("CloudDB") private database: FirestoreService) {}
 
     async getChat(mail: string, timestamp?: string): Promise<GetChatResponse> {
-        let timestampFirebase = this.getFirebaseTimestamp(timestamp);
+        let firebaseTimestamp = this.getFirebaseTimestamp(timestamp);
         this.logger.log('Getting chat from firebase');
-        // TODO: change readUser function name 
-        let dbResponse = await this.database.readUser(mail, timestampFirebase);
+        let messageList  = await this.database.readUserChat(mail, firebaseTimestamp);
         
         let res : GetChatResponse = {chat: []};
         // TODO: use lambda to create user document
-        if(!dbResponse || dbResponse.chat === null) {
-            this.logger.log(`User not found creating user with mail: ${mail}`);
+        if(!messageList) {
+            this.logger.log(`User not found, creating user with mail: ${mail}`);
             this.database.createUser('user', mail);
         }
         else {
             // TODO: set nextPageTimestamp
-            res.chat = dbResponse.chat.reverse();
+            res.chat = messageList.reverse();
             this.logger.log(`Found ${res.chat.length} messages for GET /chat`);
         }
         return res;

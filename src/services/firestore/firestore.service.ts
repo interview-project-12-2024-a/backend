@@ -43,19 +43,20 @@ export class FirestoreService implements OnModuleInit{
         return documentList;    
     }
 
-    async getChatList(docId : string, timestamp : FieldValue) : Promise<any> {
+    async getMessageList(userDocId : string, beforeTimestamp : FieldValue) : Promise<any> {
         this.logger.log('Getting message list');
-        let snapshot = await this.database.collection('user')
-                        .doc(docId)
+        let query = await this.database.collection('user')
+                        .doc(userDocId)
                         .collection('messages')
-                        .where('timestamp', '<', timestamp)
+                        .where('timestamp', '<', beforeTimestamp)
                         .orderBy('timestamp', 'desc')
                         .limit(20)
                         .get();
 
-        this.logger.log(`Found ${snapshot.docs.length} messages for ${docId}`);
+        this.logger.log(`Found ${query.docs.length} messages for ${userDocId}`);
         let chatList : Array<any> = [];
-        snapshot.docs.forEach(doc => {
+        query.docs.forEach(doc => {
+            // TODO: change this for entity
             chatList.push({
                 message: doc.data().message,
                 isAI: doc.data().isAI,
@@ -65,25 +66,21 @@ export class FirestoreService implements OnModuleInit{
         return chatList;
     }
 
-    async readUser(mail: string, timestamp : FieldValue) : Promise<any>{
+    async readUserChat(mail: string, beforeTimestamp : FieldValue) : Promise<any>{
         let documentList = await this.getDocumentList('user', mail);
         if(documentList.length === 0) {
-            this.logger.log(`User with mail: ${mail} not found`);
+            this.logger.log(`User with mail: ${mail} not found, returning null`);
+            return null;
         } else {
             this.logger.log(`User with mail: ${mail} found`);
-            let user : any = null;
+            let userDocId : any = null;
             documentList.forEach((doc) => {
-                user = {
-                    mail: doc.data().mail,
-                    docId: doc.id,
-                    chat: [],
-                };
+                userDocId = doc.id;
             });
             
             this.logger.log('Getting chat');
-            user.chat = await this.getChatList(user.docId, timestamp);
-
-            return user;
+            let chat : Array<Message> = await this.getMessageList(userDocId, beforeTimestamp);
+            return chat;
         }
     }
 
