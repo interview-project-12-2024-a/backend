@@ -13,14 +13,12 @@ export class ChatController {
     getChat(@Request() req, 
             @Query('timestamp') lastTimestamp?: string): Promise<GetChatResponse> {       
         return this.chatService.getChat(req.user.email, lastTimestamp);
-        // return this.chatService.getChat('moises.quispe.arellano@gmail.com', lastTimestamp);
     }
 
     @Post()
     @UseGuards(FirebaseAuthGuard)
     sendPrompt(@Request() req, @Body() message: Message) {
         return this.chatService.sendPrompt(req.user.email, message);
-        // return this.chatService.sendPrompt('moises.quispe.arellano@gmail.com', message);
     }
     
 }
