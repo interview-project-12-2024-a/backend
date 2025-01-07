@@ -2,6 +2,7 @@ import { FieldValue } from '@google-cloud/firestore';
 import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { Message } from 'src/models/message.model';
+import { MessageResponse } from 'src/models/response/message_response.model';
 
 
 // TODO: create db interface
@@ -41,7 +42,7 @@ export class FirestoreService implements OnModuleInit{
         return documentList;    
     }
 
-    async getMessageList(userDocId : string, beforeTimestamp : FieldValue) : Promise<any> {
+    async getMessageList(userDocId : string, beforeTimestamp : FieldValue) : Promise<Array<MessageResponse> > {
         this.logger.log('Getting message list');
         let query = await this.database.collection('user')
                         .doc(userDocId)
@@ -52,9 +53,8 @@ export class FirestoreService implements OnModuleInit{
                         .get();
 
         this.logger.log(`Found ${query.docs.length} messages for ${userDocId}`);
-        let chatList : Array<any> = [];
+        let chatList : Array<MessageResponse> = [];
         query.docs.forEach(doc => {
-            // TODO: change this for entity
             chatList.push({
                 message: doc.data().message,
                 isAI: doc.data().isAI,
@@ -64,7 +64,7 @@ export class FirestoreService implements OnModuleInit{
         return chatList;
     }
 
-    async readUserChat(mail: string, beforeTimestamp : FieldValue) : Promise<any>{
+    async readUserChat(mail: string, beforeTimestamp : FieldValue) : Promise<Array<MessageResponse> | null>{
         let documentList = await this.getDocumentList('user', mail);
         if(documentList.length === 0) {
             this.logger.log(`User with mail: ${mail} not found, returning null`);
@@ -77,7 +77,7 @@ export class FirestoreService implements OnModuleInit{
             });
             
             this.logger.log('Getting chat');
-            let chat : Array<Message> = await this.getMessageList(userDocId, beforeTimestamp);
+            let chat : Array<MessageResponse> = await this.getMessageList(userDocId, beforeTimestamp);
             return chat;
         }
     }

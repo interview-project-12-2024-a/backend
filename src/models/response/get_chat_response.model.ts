@@ -1,6 +1,6 @@
-import { Message } from "../message.model";
+import { MessageResponse } from "./message_response.model";
 
 export class GetChatResponse {
-    chat: Array<Message>;
+    chat: Array<MessageResponse>;
     nextPageTimestamp?: string;
 }
