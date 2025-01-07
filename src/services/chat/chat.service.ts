@@ -6,6 +6,7 @@ import { OpenAICompleteResponse } from 'src/models/response/open_ai_complete_res
 import { FirestoreService } from '../firestore/firestore.service';
 import * as admin from 'firebase-admin';
 import { GetChatResponse } from 'src/models/response/get_chat_response.model';
+import { MessageResponse } from 'src/models/response/message_response.model';
 
 @Injectable()
 export class ChatService implements InterfaceChatService{
@@ -33,7 +34,7 @@ export class ChatService implements InterfaceChatService{
         return res;
     }
 
-    async sendPrompt(mail: string, message: Message): Promise<any> {
+    async sendPrompt(mail: string, message: Message): Promise<MessageResponse> {
         message.timestamp = admin.firestore.FieldValue.serverTimestamp();
         this.logger.log('Sending message to openAI');
         let openAIResponse : OpenAICompleteResponse = await this.generativeAIService.complete(message);
@@ -44,21 +45,18 @@ export class ChatService implements InterfaceChatService{
             throw new InternalServerErrorException("Invalid openAI response");
         }
 
-        this.logger.log('OpenAI sent valid response');
-        this.logger.log('Saving message in firestore');
-        await this.database.updateChat('user', mail, message);
+        this.logger.log('OpenAI sent valid response, saving message in firestore');
+        await this.database.addMessage(mail, message);
 
         let res  : Message = {
             message: openAIResponse.choices[0].message.content,
             isAI: true,
             timestamp: admin.firestore.FieldValue.serverTimestamp()
         };
-
         this.logger.log('Saving openAI response to firestore');
-        await this.database.updateChat('user', mail, res);
+        await this.database.addMessage(mail, res);
         
-        // TODO: create response class
-        let response = {
+        let response : MessageResponse = {
             message: res.message,
             isAI: true,
             timestamp : new Date(Date.now()).toISOString(),

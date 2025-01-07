@@ -1,9 +1,7 @@
 import { FieldValue } from '@google-cloud/firestore';
 import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import { NotFoundError } from 'rxjs';
 import { Message } from 'src/models/message.model';
-import { User } from 'src/models/user.model';
 
 
 // TODO: create db interface
@@ -84,9 +82,9 @@ export class FirestoreService implements OnModuleInit{
         }
     }
 
-    async updateChat(collection: string, mail: string, message: Message) : Promise<void> {
+    async addMessage(mail: string, message: Message) : Promise<void> {
         this.logger.log('Getting document id');
-        let documentList = await this.getDocumentList(collection, mail);
+        let documentList = await this.getDocumentList('user', mail);
         if(documentList.length === 0) {
             this.logger.log(`User with mail: ${mail} not found`);
             throw new NotFoundException('User not found');
@@ -94,7 +92,7 @@ export class FirestoreService implements OnModuleInit{
         let documentId = documentList[0].id;
 
         this.logger.log(`Document id found ${documentId}, inserting new message`);
-        await this.database.collection(collection).doc(documentId).collection('messages').add(message);
+        await this.database.collection('user').doc(documentId).collection('messages').add(message);
     }
 
 }
